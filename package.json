@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     
-    "server": "nodemon Obvious-Chat-server/server.js"
+    "server": "nodemon Backend/server.js"
   },
   "keywords": [],
   "author": "",
