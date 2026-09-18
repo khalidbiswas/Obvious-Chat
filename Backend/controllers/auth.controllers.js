@@ -1,9 +1,10 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
+import  generateTokenAndSetCookie  from '../utils/generateToken.js';
 
 export const signup = async (req, res) => {
     try {
-        const { fullname, username, gender, email, birthDate, profilePicture,password, confirmPassword } = req.body;
+        const { fullname, username, gender, email, birthDate, profilePicture, password, confirmPassword } = req.body;
         if (!fullname || !username || !gender || !email || !birthDate || !password || !confirmPassword) {
             return res.status(400).send('All fields are required');
         }
@@ -19,7 +20,7 @@ export const signup = async (req, res) => {
         }
         // Hash the password
         const salt = await bcrypt.genSalt(10);
-         const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
         // profile picture
         const boyProfilePictures = `https://avatar.iran.liara.run/public/boy?username=${username}`;
         const girlProfilePictures = `https://avatar.iran.liara.run/public/girl?username=${username}`;
@@ -27,25 +28,32 @@ export const signup = async (req, res) => {
             fullname,
             username,
             gender,
-            email,  
+            email,
             birthDate,
             password: hashedPassword,
-            profilePicture:gender === 'male' ? boyProfilePictures : girlProfilePictures
+            // confirmPassword: hashedPassword,
+            profilePicture: gender === 'male' ? boyProfilePictures : girlProfilePictures
         });
-       await newUser.save();
-       res.status(201).json({
-       _id: newUser._id,
-       fullname: newUser.fullname,
-       username: newUser.username,
-       gender: newUser.gender,
-       email: newUser.email,
-       birthDate: newUser.birthDate,
-       profilePicture: newUser.profilePicture,
-        });
+        if (newUser) {
+            // Generate JWT token
+             generateTokenAndSetCookie(newUser._id, res);
+            await newUser.save();
+            res.status(201).json({
+                _id: newUser._id,
+                fullname: newUser.fullname,
+                username: newUser.username,
+                gender: newUser.gender,
+                email: newUser.email,
+                birthDate: newUser.birthDate,
+                profilePicture: newUser.profilePicture,
+            });
+        } else {
+            res.status(400).json({ error: "Error while creating user." })
+        }
 
     } catch (error) {
         console.error('Error during signup:', error.message);
-        res.status(500).json({error :'Internal Server Error'});
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 export const login = (req, res) => {
