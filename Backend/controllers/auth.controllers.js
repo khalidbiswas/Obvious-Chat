@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
-import  generateTokenAndSetCookie  from '../utils/generateToken.js';
+import generateTokenAndSetCookie from '../utils/generateToken.js';
 
 export const signup = async (req, res) => {
     try {
@@ -36,7 +36,7 @@ export const signup = async (req, res) => {
         });
         if (newUser) {
             // Generate JWT token
-             generateTokenAndSetCookie(newUser._id, res);
+            generateTokenAndSetCookie(newUser._id, res);
             await newUser.save();
             res.status(201).json({
                 _id: newUser._id,
@@ -56,9 +56,53 @@ export const signup = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-export const login = (req, res) => {
-    res.send('Login route');
+
+export const login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        // Check if username and password are provided
+        if (!username || !password) {
+            return res.status(400).send('Username and password are required');
+
+        }
+        // Check if the user exists in the database
+        const user = await User.findOne({ username });
+        if (!user) {
+
+            return res.status(400).send('Invalid username or password');
+        }
+        // Compare the provided password with the hashed password stored in the database
+        const isPasswordValid = await bcrypt.compare(password, user.password || '');
+        if (!isPasswordValid) {
+            return res.status(400).send('Invalid username or password');
+        }
+
+        generateTokenAndSetCookie(user._id, res);
+        res.status(200).json({
+            _id: user._id,
+            fullname: user.fullname,
+            username: user.username,
+            profilePicture: user.profilePicture,
+        });
+
+
+    } catch (error) {
+        console.error('Error during Login:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 export const logout = (req, res) => {
-    res.send('Logout route');
+    try{
+        res.cookie('jwt', '', {
+            maxAge: 0, // Set the cookie to expire immediately
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production'
+        });
+        res.status(200).json({ message: 'Logged out successfully' });
+    }
+    catch (error) {
+        console.error('Error during Login:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
