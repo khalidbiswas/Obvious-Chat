@@ -33,7 +33,8 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     }
-})
+}, // save user created time by mongodb
+{timestamps:true})
 
 const User = mongoose.model('User', userSchema);
 
