@@ -6,24 +6,24 @@ export const signup = async (req, res) => {
     try {
         const { fullname, username, gender, email, birthDate, profilePicture, password, confirmPassword } = req.body;
         if (!fullname || !username || !gender || !email || !birthDate || !password || !confirmPassword) {
-            return res.status(400).send('All fields are required');
+            return res.status(400).json({ error: 'All fields are required' });
         }
         if (password !== confirmPassword) {
-            return res.status(400).send('Passwords do not match');
+            return res.status(400).json({ error: 'Passwords do not match' });
         }
         if (password.length < 6) {
-            return res.status(400).send('Password must be at least 6 characters long');
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
         }
         const user = await User.findOne({ $or: [{ email }, { username }] });
         if (user) {
-            return res.status(400).send('User already exists');
+            return res.status(400).json({ error: 'User already exists' });
         }
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         // profile picture
-        const boyProfilePictures = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-        const girlProfilePictures = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+        const boyProfilePictures = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
+        const girlProfilePictures = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username};`;
         const newUser = new User({
             fullname,
             username,
@@ -62,19 +62,19 @@ export const login = async (req, res) => {
         const { username, password } = req.body;
         // Check if username and password are provided
         if (!username || !password) {
-            return res.status(400).send('Username and password are required');
+            return res.status(400).json({ error: 'Username and password are required' });
 
         }
         // Check if the user exists in the database
         const user = await User.findOne({ username });
         if (!user) {
 
-            return res.status(400).send('Invalid username or password');
+            return res.status(400).json({ error: 'Invalid username or password' });
         }
         // Compare the provided password with the hashed password stored in the database
         const isPasswordValid = await bcrypt.compare(password, user.password || '');
         if (!isPasswordValid) {
-            return res.status(400).send('Invalid username or password');
+            return res.status(400).json({ error: 'Invalid username or password' });
         }
 
         generateTokenAndSetCookie(user._id, res);
@@ -97,12 +97,12 @@ export const logout = (req, res) => {
             maxAge: 0, // Set the cookie to expire immediately
             httpOnly: true,
             sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production'
+            secure: process.env.NODE_ENV !== 'development', 
         });
         res.status(200).json({ message: 'Logged out successfully' });
     }
     catch (error) {
-        console.error('Error during Login:', error.message);
+        console.error('Error during Logout:', error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }

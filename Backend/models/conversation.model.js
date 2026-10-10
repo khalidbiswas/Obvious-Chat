@@ -1,25 +1,25 @@
 import mongoose from 'mongoose';
 
-const conversationSchema = new mongoose.Schema({
-    senderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+const conversationSchema = new mongoose.Schema(
+    {
+        participants: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
+        messages: {
+            type: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Message'
+            }],
+            default: [],
+        }
+
     },
-    receiverId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    message:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Message",
-        default: []
-    }
+    { timestamps: true }
+)
+const Conversation = mongoose.model('Conversation', conversationSchema);
 
-}, // will save the sending n receiving time by mongoDB itself
-    { timestamps: true });
+export default Conversation;
 
-    const Convarsation = mongoose.Model("Convarsation",conversationSchema);
-
-    export default Convarsation;
