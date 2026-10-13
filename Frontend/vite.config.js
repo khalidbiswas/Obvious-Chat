@@ -14,11 +14,12 @@ export default defineConfig({
         target: "http://localhost:3000", // Ensure this port matches your Express backend server
         changeOrigin: true,
       },
+      "/socket.io": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        ws: true,
+      },
     },
-    "/socket.io": {
-      target: "http://localhost:3000",
-      changeOrigin: true,
-      ws: true,
-    },
+
   },
 })

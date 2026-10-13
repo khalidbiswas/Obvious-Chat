@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import Message from "./Message";
 import MessageSkeleton from "../skeletons/MessageSkeleton";
 import useGetMessages from "../../hooks/useGetMessages";
+import useListenMessages from "../../hooks/useListenMessages";
 import { useConversation } from "../../zustand/useConversation";
 
 const Messages = () => {
@@ -9,6 +10,8 @@ const Messages = () => {
   const { selectedConversation } = useConversation();
   const lastMessageRef = useRef(null);
 
+  // Listen for new messages in real-time
+  useListenMessages();
   // Auto scroll to bottom when new messages load or change
   useEffect(() => {
     setTimeout(() => {

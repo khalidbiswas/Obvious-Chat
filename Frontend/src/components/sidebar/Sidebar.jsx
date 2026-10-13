@@ -3,14 +3,18 @@ import SearchInput from "./SearchInput";
 import Conversations from "./Conversations";
 import LogoutButton from "./LogoutButton";
 import { useTheme } from "../../context/ThemeContext";
+import { useConversation } from "../../zustand/useConversation";
 
-const Sidebar = ({ selectedConversation, onSelectConversation }) => {
+const Sidebar = ({ onSelectConversation }) => {
   const { theme } = useTheme();
+  const { selectedConversation } = useConversation();
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div
-      className={`w-full md:w-80 border-r flex flex-col h-full shrink-0 ${
+      className={`w-full md:w-80 border-r flex-col h-full shrink-0 ${
+        selectedConversation ? "hidden md:flex" : "flex" // hide the sidebar while a chat is open
+      } ${
         theme === "dark"
           ? "border-white/10 bg-black/20"
           : "border-black/5 bg-white/20"
@@ -33,7 +37,7 @@ const Sidebar = ({ selectedConversation, onSelectConversation }) => {
       <SearchInput onSearch={(q) => setSearchQuery(q)} />
 
       {/* Divider */}
-      <div className="h-pxbg-black/10 dark:bg-white/10 mx-3 my-0" />
+      <div className="h-px bg-black/10 dark:bg-white/10 mx-3 my-0" />
 
       {/* Conversation List */}
       <Conversations
