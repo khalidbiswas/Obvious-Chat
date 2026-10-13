@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "scripts": {
-    "server": "nodemon Backend/server.js",
-    "start": "node Backend/server.js",
-    "build": "npm install && npm install --prefix Frontend && npm run build --prefix Frontend"
-  },
+ 
+"scripts": {
+  "server": "nodemon Backend/server.js",
+  "start": "node Backend/server.js",
+  "build": "npm install --prefix Frontend && npm run build --prefix Frontend"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
