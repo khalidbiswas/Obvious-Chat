@@ -36,6 +36,10 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 
 app.use(express.static(path.join(__dirname, 'Frontend/build'))); // Serve static files from the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Frontend/build', 'index.html')); // Serve the React app for any other route
+});
+
 
 server.listen(PORT, () => {
     connectToMongoDB();
